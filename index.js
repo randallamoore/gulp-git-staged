@@ -60,12 +60,16 @@ module.exports = function(options) {
 			},
 			// filter file from stream
 			function(filenames) {
-				var isIn = _.some(filenames, function(line) {
-					return file.path.indexOf(line) !== -1;
+				_.some(filenames, (line) => {
+					if (file.path.indexOf('/' + line) !== -1) {
+						git.status({args : '--porcelain ' + file.path, quiet: true}, 
+							 (err, stdout) => {
+								if (stdout.length > 0) {
+									self.push(file);
+								}
+							});
+					}
 				});
-				if (isIn) {
-					self.push(file);
-				}
 				callback();
 			}
 		]);
